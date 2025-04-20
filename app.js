@@ -1,5 +1,6 @@
 let express = require('express');
 let app = express();
+const path = require('path');
 
 app.listen(8888);
 
@@ -63,20 +64,85 @@ videoDB.set(video1.id,video1);
 videoDB.set(video2.id,video2);
 videoDB.set(video3.id,video3);
 
-
+app.use(express.static(path.join(__dirname, 'public')));
 app.get('/',(req,res)=>{
-    res.send({"message" : "success to starting"})
+    res.sendFile(path.join(__dirname,'public','main.html'));
 })
 
+//유튜버 닉네임 조회
 app.get('/youtubers/:n',(req,res)=>{
     reqYoutuberNickname = req.params.n;
     
-    let videos = getAllVideos(reqYoutuberNickname);
+    let videos = JSON.stringify(getVideostoNickname(reqYoutuberNickname));
     res.json({"youtubers" : db.get(reqYoutuberNickname) ,"videos": videos});
 
 })
 
-function getAllVideos(youtuberNickname){
+//유튜버 전체 조회
+app.get('/youtubers',(req,res)=>{
+    
+    let videos =   Object.fromEntries(videoDB);
+    let youtubers = Object.fromEntries(db);
+    res.json({"message":"전체 유튜버 및 영상 조회입니다.","youtubers": youtubers ,"videos": videos});
+
+})
+
+app.post('/youtubers',(req,res)=>{
+     
+    const newYoutuber = req.body;
+    console.log(newYoutuber);
+    if(newYoutuber.nickname!=undefined){
+        console.log(db); // test
+        console.log(db.has(newYoutuber.nickname));
+        if(!db.has(newYoutuber.nickname)){
+            let newId = 0 ;
+            db.forEach((value,key)=>{
+                if(value.id > newId){
+                    newId = value.id;
+                }
+            });
+            db.set(newYoutuber.nickname,{
+            id:newId+1,
+            nickname:newYoutuber.nickname,
+            channelTitle:newYoutuber.channelTitle,
+            desc:newYoutuber.desc,
+            subscribers:0
+            });
+            console.log(db); //test
+            res.json({"message":`${newYoutuber.nickname}님, 새로운 유투버로 등록이 완료됬습니다.`});
+        }
+        else(
+            res.json({"message":"이미 있는 유튜버입니다."})
+        )
+    }
+    else{
+        res.json({"message":"추가하려는 유튜버 정보를 다시 확인해주세요."})
+    }
+})
+
+//현재는 viewers만만 수정
+app.patch('/videos/:vid',(req,res)=>{
+    console.log(req.body);
+    let {viewers} = req.body;
+    let videoId = parseInt(req.params.vid);
+
+    if(videoDB.has(videoId)){
+        const video = videoDB.get(videoId);
+        console.log(viewers + "테스트");
+        video.viewers = viewers;
+        videoDB.set(videoId, video);
+
+        return res.json({"message": "성공적으로 뷰어 수정"});
+
+    }
+    else{
+        res.json({"message":"해당 비디오를 찾을 수 없습니다."});
+    }
+
+
+});
+
+function getVideostoNickname(youtuberNickname){
     let videos = [];
     console.log(youtuberNickname);
     videoDB.forEach((value,key)=>{

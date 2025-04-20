@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>youtube</title>
+    <style>
+        td,
+        th,
+        table {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>유튜버</h1>
+    <hr>
+    <section id="youtuberCards">
+        <!-- 항목 하나 -->
+        <section>
+            <div id="test">
+            </div>
+
+
+            <table class="videos">
+                <thead>
+                    <tr>
+                        <th>영상이름</th>
+                        <th>좋아요</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>nickname</td>
+                        <td>subs</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+
+    </section>
+
+
+</body>
+<script>
+    async function getAllYoutubers() {
+        try {
+            const response = await fetch('/youtubers');
+            if (!response.ok) {
+                throw new Error('네트워크 응답에 문제가 있습니다');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('에러 발생:', error);
+        }
+    }
+
+    function createYoutuberCardTable(data) {
+        const table = document.createElement('table');
+        let tr = document.createElement('tr');
+        let cell = document.createElement('th');
+
+        // 테이블 제목 설정
+        cell.textContent = "닉네임";
+        tr.appendChild(cell);
+        cell = document.createElement('th');
+        cell.textContent = "구독자";
+        tr.appendChild(cell);
+        cell = document.createElement('th');
+        cell.textContent = "설명";
+        tr.appendChild(cell);
+
+        table.appendChild(tr);
+
+        tr = document.createElement('tr');
+        cell = document.createElement('td');
+        cell.textContent = data.nickname;
+        tr.appendChild(cell);
+        cell = document.createElement('td');
+        cell.textContent = data.subscribers + "명";
+        tr.appendChild(cell);
+        cell = document.createElement('td');
+        cell.textContent = data.desc;
+        tr.appendChild(cell);
+
+        table.appendChild(tr);
+        return table;
+    }
+    function createVideoCardTable(data) {
+        const table = document.createElement('table');
+        let tr = document.createElement('tr');
+        let cell = document.createElement('th');
+
+        // 테이블 제목 설정
+        cell.textContent = "닉네임";
+        tr.appendChild(cell);
+        cell = document.createElement('th');
+        cell.textContent = "비디오 설명";
+        tr.appendChild(cell);
+        cell = document.createElement('th');
+        cell.textContent = "시청자";
+        tr.appendChild(cell);
+        cell = document.createElement('th');
+        cell.textContent = "시청하기기";
+        tr.appendChild(cell);
+
+        table.appendChild(tr);
+
+        tr = document.createElement('tr');
+        cell = document.createElement('td');
+        cell.textContent = data.youtuberNickname;
+        tr.appendChild(cell);
+        cell = document.createElement('td');
+        cell.textContent = data.videoDesc;
+        tr.appendChild(cell);
+        const viewerCell = document.createElement('td');
+        viewerCell.textContent = data.viewers + "명";
+        tr.appendChild(viewerCell);
+        cell = document.createElement('td');
+        const button = document.createElement('input');
+        button.type = 'button';
+        button.value = "시청하기";
+        button.onclick = () => {
+            fetch(`/Videos/${data.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    viewers: Number(data.viewers) + 1
+                })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('업데이트 실패');
+                    return response.json();
+                })
+                .then(result => {
+                    alert(`"${data.videoDesc}"영상을 시청 완료했습니다. `);
+                    data.viewers +=1;
+                    viewerCell.textContent = data.viewers + "명";
+                    console.log('패치 결과:', result);
+                })
+                .catch(err => {
+                    console.error('PATCH 에러:', err);
+                });
+
+        }
+        cell.appendChild(button);
+        tr.appendChild(cell);
+
+        table.appendChild(tr);
+        return table;
+    }
+    getAllYoutubers().then(DataYoutubers => {
+        console.log(DataYoutubers.youtubers);
+        //배열로 전환환
+        const youtuberList = Object.values(DataYoutubers.youtubers);
+        const VideoList = Object.values(DataYoutubers.videos);
+
+        youtuberList.forEach((value) => {
+            // const table = createYoutuberCardTable(value);
+            // let youtubersVideo = [];
+
+            // VideoList.forEach((video) => {
+            //     if (video.youtuberNickname == value.nickname) {
+            //         youtubersVideo.push(video);
+            //     }
+            // });
+            // console.log(youtubersVideo);
+            // youtubersVideo.forEach((video) => {
+            //     const vTable = createVideoCardTable(video);
+            // })
+
+
+            // document.getElementById('test').appendChild(table);
+            const wrapper = document.createElement('div'); // 유튜버 1명당 카드
+            wrapper.style.marginBottom = "40px";
+
+            const youtuberTable = createYoutuberCardTable(value);
+            wrapper.appendChild(youtuberTable);
+
+            let youtubersVideo = VideoList.filter(video => video.youtuberNickname === value.nickname);
+
+            youtubersVideo.forEach((video) => {
+                const vTable = createVideoCardTable(video);
+                wrapper.appendChild(vTable);
+            });
+
+            document.getElementById('test').appendChild(wrapper);
+        });
+    });
+
+
+</script>
+
+</html>
