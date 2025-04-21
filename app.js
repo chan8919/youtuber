@@ -119,6 +119,27 @@ app.post('/youtubers',(req,res)=>{
         res.json({"message":"추가하려는 유튜버 정보를 다시 확인해주세요."})
     }
 })
+app.delete('/youtubers',(req,res)=>{
+    if(db.size==0){
+        res.json({"message":"이미 비어 있습니다"});
+    }else{
+        db.clear();
+        res.json({"message":"모든 유튜버를 제거했습니다"})
+    }
+
+})
+app.delete('/youtubers/:id',(req,res)=>{
+    const id = parseInt(req.params.id);
+
+    if(db.has(id)){
+        let data = db.get(id);
+        db.delete(id);
+        res.json({"message":`${data.nickname}님을 제거했습니다`});
+    }else{
+        res.json({"message":"대상 유저가 없습니다"})
+    }
+
+})
 
 //현재는 viewers만만 수정
 app.patch('/videos/:vid',(req,res)=>{
