@@ -251,6 +251,10 @@ app.post('/login', (req, res) => {
 // })
 
 //채널 개별 조회
+app.get('/channels/:id',(req,res)=>{
+    const ChannelId= parseInt(req.params.id);
+    
+})
 //채널 전체 조회
 //채널 생성
 app.post('/channels', (req, res) => {
@@ -275,12 +279,37 @@ app.post('/channels', (req, res) => {
         channelDesc: channelDesc,
         subscribers: 0
     }
-    channelDB.set(newChannel.id,newChannel);
-    res.status(201).json({"message" : " 채널 생성을 완료했습니다. "})
-   
+    channelDB.set(newChannel.id, newChannel);
+    res.status(201).json({ "message": " 채널 생성을 완료했습니다. " })
+
 
 })
+//채널 수정
+app.put('/channels/:id', (req, res) => {
+    const channelId = parseInt(req.params.id);
+    const { channelTitle, channelDesc, youtuber_userId } = req.body;
+    let channel = channelDB.get(channelId);
+    if (!existYoutuberByUserId(youtuber_userId)) {  // 해당 유튜버를 id값으로 조회/ 없을경우 오류처리리
+        res.status(404).json({ "message": "사용자를 찾을 수 없습니다" });
+    }
+    if (isOverChannelLimmitByUserId(youtuber_userId)) {
+        res.status(404).json({ "message": "사용자의 채널 생성 제한을 초과했습니다" });
+    }
+    if (channel.channelTitle !==channelTitle ) {
+        if (existChannelByChannelTitle(channelTitle)) {
+            res.status(404).json({ "message": "이미 있는 채널과 타이틀이 중복되었습니다" });
+        }
+    }
 
+    channel["channelTitle"]=channelTitle;
+    channel["channelDesc"]=channelDesc;
+    channel["youtuber_userId"]=youtuber_userId;
+
+    channelDB.set(channel);
+    res.status(200).json({"message":"채널 수정에 성공했습니다"});
+
+})
+//채널 개별 삭제
 
 /// 함수
 // 이름짓기가 참 까다롭다. 그래도 최대한 규칙에 맞게.. 이름 길어지더라도 설정하자
@@ -325,6 +354,18 @@ function existChannelByChannelTitle(channelTitle) {
     }
     return isExist;
 }
+function existChannelByChannelId(channelId) {
+    let isExist = false;
+    if (typeof (channelId) === "number") {
+        for (let channel of channelDB.values()) {
+            if (channel.channelId === channelId) {
+                isExist = true;
+                break;
+            }
+        }
+    }
+    return isExist;
+}
 function isOverChannelLimmitByUserId(userId) {
     let counter = 0;
     if (typeof (userId) === "string") {
@@ -352,13 +393,6 @@ function getNewIdbyDB(database) {
     lastId = parseInt(lastId);
     return lastId + 1;
 }
-
-
-
-//채널 수정
-//채널 개별 삭제
-
-
 
 
 
