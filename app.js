@@ -253,7 +253,17 @@ app.post('/login', (req, res) => {
 app
     .route('/channels')
     .get((req, res) => {
-        // 전체 조회회
+        // 전체 조회
+        if (channelDB.size !== 0) {
+            let channels = Object.fromEntries(channelDB);
+            res.status(200).json({ "message": "전체 채널 목록입니다.", "channels": channels });
+    
+        }
+        else {
+    
+            res.status(404).json({ "message": "채널이 하나도 없어요!" });
+        }
+        
     })
     .post((req, res) => {
         //채널 생성
@@ -289,7 +299,7 @@ app
 app
     .route('/channels/:id')
     .get((req, res) => {
-        //개별 조회회
+        //개별 조회
         const ChannelId = parseInt(req.params.id);
         if(!existChannelById(ChannelId)){
             res.status(404).json({"message":"채널널정보를 찾을 수 없습니다"});
