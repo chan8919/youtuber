@@ -253,7 +253,7 @@ app.post('/login', (req, res) => {
 //채널 개별 조회
 app.get('/channels/:id',(req,res)=>{
     const ChannelId= parseInt(req.params.id);
-    
+
 })
 //채널 전체 조회
 //채널 생성
