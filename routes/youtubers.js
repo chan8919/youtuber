@@ -50,26 +50,27 @@ router
         }
     })
     .delete((req, res) => {
-        if (dbdata.db.size > 0) {
-            dbdata.db.clear();
-            res.status(200).json({ "message": "모든 유튜버를 제거했습니다" })
+        const { userId } = req.body;
+        if (dbFunc.existYoutuberByUserId(userId)) {
+            let data = dbFunc.findYoutuberByUserId(userId);
+            console.log(data);
+            dbdata.db.delete(data.nickname);
+            res.status(200).json({ "message": `${data.nickname}님을 제거했습니다` });
         } else {
-            res.status(404).json({ "message": "이미 비어 있습니다" });
+            res.status(404).json({ "message": "대상 유저가 없습니다" })
         }
     })
 
 
 
-router.delete('/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    if (dbdata.db.has(id)) {
-        let data = dbdata.db.get(id);
-        db.delete(id);
-        res.status(200).json({ "message": `${data.nickname}님을 제거했습니다` });
-    } else {
-        res.status(404).json({ "message": "대상 유저가 없습니다" })
-    }
-})
+// router.delete('/', (req, res) => {
+//     if (dbdata.db.size > 0) {
+//         dbdata.db.clear();
+//         res.status(200).json({ "message": "모든 유튜버를 제거했습니다" })
+//     } else {
+//         res.status(404).json({ "message": "이미 비어 있습니다" });
+//     }
+// })
 router.post('/login', (req, res) => {
     const { userId, pwd } = req.body;
     let isIdMatched = false;

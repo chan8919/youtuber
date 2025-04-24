@@ -4,7 +4,6 @@ const dbFunc = require('../func/dbfunc');
 const dbdata = require('../data/data');
 router.use(express.json());
 
-
 router
     .route('/')
     .get((req, res) => {
@@ -16,7 +15,8 @@ router
             res.status(200).json({ "message": "전체 채널 목록입니다.", "channels": channels });
         }
         else {
-            res.status(404).json({ "message": "채널이 하나도 없어요!" });
+            // res.status(404).json({ "message": "채널이 하나도 없어요!" });
+            dbFunc.notFoundChennelMsg(res);
         }
     })
     .post((req, res) => {
@@ -54,7 +54,8 @@ router
         //개별 조회
         const ChannelId = parseInt(req.params.id);
         if (!dbFunc.existChannelById(ChannelId)) {
-            res.status(404).json({ "message": "채널널정보를 찾을 수 없습니다" });
+            //res.status(404).json({ "message": "채널널정보를 찾을 수 없습니다" });
+            dbFunc.notFoundChennelMsg(res);
             return;
         }
         res.status(200).json(dbdata.channelDB.get(ChannelId));
@@ -92,7 +93,8 @@ router
         const channelId = parseInt(req.params.id);
         console.log(channelId);
         if (!dbFunc.existChannelById(channelId)) {
-            res.status(404).json({ "message": "존재하지 않는 채널입니다. 삭제할 수 없습니다" });
+            // res.status(404).json({ "message": "존재하지 않는 채널입니다. 삭제할 수 없습니다" });
+            dbFunc.notFoundChennelMsg(res);
             return;
         }
         dbdata.channelDB.delete(channelId);

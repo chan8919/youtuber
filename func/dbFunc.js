@@ -5,7 +5,7 @@ function findYoutuberByUserId(userId) {
     let searchData = null;
     if (typeof (userId) === "string") {
         // db에서 userId가 일치하는 유튜버 탐색 -> 성공시 searchData에 저장장
-        for (let youtuber of db) {
+        for (let youtuber of dbdata.db.values()) {
             if (youtuber.userId === userId) {
                 searchData = youtuber;
                 break;
@@ -94,6 +94,12 @@ function getVideostoNickname(youtuberNickname) {
 
     return videos;
 }
+//경고 목록
+function notFoundChennelMsg(res){
+    res.status(404).json({"message":"채널을 찾을수 없어요"})
+}
+
+
 
 module.exports = {
     findYoutuberByUserId,
@@ -102,5 +108,6 @@ module.exports = {
     existChannelById,
     isOverChannelLimmitByUserId,
     getNewIdbyDB,
-    getVideostoNickname
+    getVideostoNickname,
+    notFoundChennelMsg
 }
