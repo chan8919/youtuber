@@ -1,3 +1,5 @@
+const dbdata = require('../data/data');
+
 // 사용자 가져오기기
 function findYoutuberByUserId(userId) {
     let searchData = null;
@@ -17,7 +19,7 @@ function existYoutuberByUserId(userId) {
     let isExist = false;
     if (typeof (userId) === "string") {
         // db에서 userId가 일치하는 유튜버 탐색 -> 성공시 searchData에 저장장
-        for (let youtuber of db.values()) {
+        for (let youtuber of dbdata.db.values()) {
             if (youtuber.userId === userId) {
                 isExist = true;
                 break;
@@ -30,7 +32,7 @@ function existYoutuberByUserId(userId) {
 function existChannelByChannelTitle(channelTitle) {
     let isExist = false;
     if (typeof (channelTitle) === "string") {
-        for (let channel of channelDB.values()) {
+        for (let channel of dbdata.channelDB.values()) {
             if (channel.channelTitle === channelTitle) {
                 isExist = true;
                 break;
@@ -43,7 +45,7 @@ function existChannelById(channelId) {
     let isExist = false;
     
     if (typeof (channelId) === "number") {
-        for (let channel of channelDB.values()) {
+        for (let channel of dbdata.channelDB.values()) {
             if (channel.id == channelId) {
                 isExist = true;
                 break;
@@ -55,7 +57,7 @@ function existChannelById(channelId) {
 function isOverChannelLimmitByUserId(userId) {
     let counter = 0;
     if (typeof (userId) === "string") {
-        channelDB.forEach(channel => {
+        dbdata.channelDB.forEach(channel => {
             if (channel.userId === userId) {
                 counter++;
             }

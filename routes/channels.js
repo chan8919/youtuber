@@ -1,16 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const dbFunc = require("./func/dbFunc");
-
+const dbFunc = require('../func/dbfunc');
+const dbdata = require('../data/data');
 router.use(express.json());
 
 
 router
     .route('/')
     .get((req, res) => {
-        // 전체 조회
-        if (channelDB.size !== 0) {
-            let channels = Object.fromEntries(channelDB);
+        // 특정 유튜버의 채널 전체 조회
+        //const {youtuberId} = req.body;
+        if (dbdata.channelDB.size !== 0) {
+            let channels = Object.fromEntries(dbdata.channelDB);
             console.log(typeof (channels));
             res.status(200).json({ "message": "전체 채널 목록입니다.", "channels": channels });
         }
@@ -36,13 +37,13 @@ router
             return;
         }
         let newChannel = {
-            id: dbFunc.getNewIdbyDB(channelDB),
+            id: dbFunc.getNewIdbyDB(dbdata.channelDB),
             youtuber_userId: youtuber_userId,
             channelTitle: channelTitle,
             channelDesc: channelDesc,
             subscribers: 0
         }
-        channelDB.set(newChannel.id, newChannel);
+        dbdata.channelDB.set(newChannel.id, newChannel);
         res.status(201).json({ "message": " 채널 생성을 완료했습니다. " })
 
     })
@@ -56,13 +57,13 @@ router
             res.status(404).json({ "message": "채널널정보를 찾을 수 없습니다" });
             return;
         }
-        res.status(200).json(channelDB.get(ChannelId));
+        res.status(200).json(dbdata.channelDB.get(ChannelId));
     })
     .put((req, res) => {
         //채널 수정 
         const channelId = parseInt(req.params.id);
         const { channelTitle, channelDesc, youtuber_userId } = req.body;
-        let channel = channelDB.get(channelId);
+        let channel = dbdata.channelDB.get(channelId);
         if (!dbFunc.existYoutuberByUserId(youtuber_userId)) {  // 해당 유튜버를 id값으로 조회/ 없을경우 오류처리리
             res.status(404).json({ "message": "사용자를 찾을 수 없습니다" });
             return;
@@ -82,7 +83,7 @@ router
         channel["channelDesc"] = channelDesc;
         channel["youtuber_userId"] = youtuber_userId;
 
-        channelDB.set(channel);
+        dbdata.channelDB.set(channel);
         res.status(200).json({ "message": "채널 수정에 성공했습니다" });
 
     })
@@ -94,7 +95,7 @@ router
             res.status(404).json({ "message": "존재하지 않는 채널입니다. 삭제할 수 없습니다" });
             return;
         }
-        channelDB.delete(channelId);
+        dbdata.channelDB.delete(channelId);
         res.status(200).json({ "message": "채널 삭제에 성공했습니다" })
     })
 
