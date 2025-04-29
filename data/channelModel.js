@@ -33,12 +33,14 @@ function getAllChannels() {
 
 }
 //채널 추가
-async function addChannel({ name, desc, email }) {
+async function addChannel({ name, description, email }) {
     try {
         const user = await users.findByEmail({ "email": email });
+        console.log(typeof(parseInt(user[0].id)));
+        console.log(description);
         return new Promise((resolve, reject) => {
-            const sql = 'INSERT INTO members (name,member_id,desc) VALUES (?,?,?)';
-            conn.query(sql, [name, user.id, desc],
+            const sql = 'INSERT INTO channels (name, member_id ,description) VALUES (?,?,?)';
+            conn.query(sql, [name, user[0].id, description],
                 function (err, results) {
                     if (err) {
                         reject(err);
@@ -54,8 +56,8 @@ async function addChannel({ name, desc, email }) {
     }
 
 }
-// 제한 확인인
-function checkLimitChannelNum({email}) {
+// 갯수 제한 확인인
+function isOverChannelLimit({email}) {
     const channelLimit = 100;
     return new Promise((resolve, reject) => {
         const sql = 'SELECT COUNT(*) AS count FROM channels AS c JOIN members AS u ON c.member_id=u.id WHERE u.email = ? ';
@@ -63,16 +65,42 @@ function checkLimitChannelNum({email}) {
             if (err) {
                 reject(err);
             } else {
-                console.log(results[0].count);
-                resolve(results[0].count);
+                if(results[0].count>=100){
+                    resolve(true)
+                }
+                else{
+                    resolve(false)
+                }
             }
         })
     })
 
 }
 
+// 채널 중복 이름 확인
+function isExistByName({name}){
+    const sql = 'SELECT EXISTS (SELECT * FROM channels WHERE name = ?) AS exist';
+    return new Promise((resolve, reject) => {
+        conn.query(sql, name, // 테이블 명은 바인딩으로 사용할 수 없다.
+            function (err, results, fields) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    const exists = results[0].exist;
+                    resolve(exists);
+                }
+            });
+
+    })
+
+
+}
+
 module.exports = {
     findByUserEmail,
     getAllChannels,
+    isExistByName,
+    isOverChannelLimit,
     addChannel
 };

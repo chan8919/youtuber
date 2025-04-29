@@ -3,6 +3,7 @@ const router = express.Router();
 const dbFunc = require('../func/dbfunc');
 const dbdata = require('../data/data');
 const channels = require('../data/channelModel');
+const users = require('../data/memberModel');
 const { findByEmail } = require("../data/memberModel");
 router.use(express.json());
 
@@ -18,32 +19,35 @@ router
             dbFunc.notFoundChennelMsg(res);
         }
     })
-    .post((req, res) => {
+    .post(async (req, res) => {
         //채널 생성
-        const { channelTitle, channelDesc, youtuber_userId } = req.body;
+        const { name, description, email } = req.body;
         //예외처리는 앞에? if-else 짝으로 모든 예외처리를 하면 스코프가 잘 보이지 않는듯 하다.
         // 그래서 하나 하나 오류를 확인해서 바로 쳐내는 방식으로 구현한다.
-        if (!dbFunc.existYoutuberByUserId(youtuber_userId)) {  // 해당 유튜버를 id값으로 조회/ 없을경우 오류처리리
-            res.status(404).json({ "message": "유튜버를 찾을 수 없습니다" });
-            return;
-        }
-        if (dbFunc.isOverChannelLimmitByUserId(youtuber_userId)) {
+        // 이메일 체크는 필요 없을지도
+        // const userExist = await users.isExistByEmail({"email":email})
+        // if (!userExist) {  // 해당 유튜버를 email로 확인
+        //     res.status(404).json({ "message": "유튜버를 찾을 수 없습니다" });
+        //     return;
+        // }
+        const isOverLimit = await channels.isOverChannelLimit({"email":email});
+        if (isOverLimit) {
             res.status(404).json({ "message": "유튜버의 채널 생성 제한을 초과했습니다" });
             return;
         }
-        if (dbFunc.existChannelByChannelTitle(channelTitle)) {
+        const isExist = await channels.isExistByName({"name":name});
+        if (isExist) {
             res.status(404).json({ "message": "이미 있는 채널과 타이틀이 중복되었습니다" });
             return;
         }
-        let newChannel = {
-            id: dbFunc.getNewIdbyDB(dbdata.channelDB),
-            youtuber_userId: youtuber_userId,
-            channelTitle: channelTitle,
-            channelDesc: channelDesc,
-            subscribers: 0
+        try{
+            await channels.addChannel({name:name,description:description,email:email});
+            res.status(201).json({ "message": " 채널 생성을 완료했습니다. " });
         }
-        dbdata.channelDB.set(newChannel.id, newChannel);
-        res.status(201).json({ "message": " 채널 생성을 완료했습니다. " })
+        catch(err){
+            console.log(err);
+            res.status(404).json({ "message": " 오류가 발생해 채널 생성에 실패했습니다. " });
+        } 
 
     })
 
