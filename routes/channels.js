@@ -25,11 +25,11 @@ router
         //예외처리는 앞에? if-else 짝으로 모든 예외처리를 하면 스코프가 잘 보이지 않는듯 하다.
         // 그래서 하나 하나 오류를 확인해서 바로 쳐내는 방식으로 구현한다.
         if (!dbFunc.existYoutuberByUserId(youtuber_userId)) {  // 해당 유튜버를 id값으로 조회/ 없을경우 오류처리리
-            res.status(404).json({ "message": "사용자를 찾을 수 없습니다" });
+            res.status(404).json({ "message": "유튜버를 찾을 수 없습니다" });
             return;
         }
         if (dbFunc.isOverChannelLimmitByUserId(youtuber_userId)) {
-            res.status(404).json({ "message": "사용자의 채널 생성 제한을 초과했습니다" });
+            res.status(404).json({ "message": "유튜버의 채널 생성 제한을 초과했습니다" });
             return;
         }
         if (dbFunc.existChannelByChannelTitle(channelTitle)) {
@@ -79,7 +79,6 @@ router
                 return;
             }
         }
-
         channel["channelTitle"] = channelTitle;
         channel["channelDesc"] = channelDesc;
         channel["youtuber_userId"] = youtuber_userId;
@@ -100,5 +99,6 @@ router
         dbdata.channelDB.delete(channelId);
         res.status(200).json({ "message": "채널 삭제에 성공했습니다" })
     })
+
 
     module.exports = router;

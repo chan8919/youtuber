@@ -74,4 +74,4 @@ const channel1 = {
 
 channelDB.set(channel1.id, channel1);
 
-module.exports = {db,videoDB,channelDB }
+module.exports = {db,videoDB,channelDB}

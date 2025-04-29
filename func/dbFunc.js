@@ -1,6 +1,9 @@
 const dbdata = require('../data/data');
 
 // 사용자 가져오기기
+
+
+
 function findYoutuberByUserId(userId) {
     let searchData = null;
     if (typeof (userId) === "string") {
@@ -14,6 +17,10 @@ function findYoutuberByUserId(userId) {
     }
     return searchData;  // searchData가 있으면 데이터를 넘기고 , 없으면 null값 반환
 }
+
+
+
+
 // 사용자가 있는지 확인인
 function existYoutuberByUserId(userId) {
     let isExist = false;
