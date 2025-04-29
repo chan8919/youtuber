@@ -17,7 +17,8 @@ router
                     await users.addUser(newYoutuber);
                     res.status(201).json({ "message": `${newYoutuber.name}님, 새로운 유투버로 등록이 완료됬습니다.` });
                 }
-                catch {
+                catch (err) {
+                    console.log(err);
                     res.status(404).json({ "message": `사용자 추가중 오류가 발생했습니다` });
                 }
             }
@@ -47,7 +48,8 @@ router
                 await users.delUser({"email":email});
                 res.status(200).json({ "message": `${email}님을 제거했습니다` });
             }
-            catch{
+            catch(err){
+                console.log(err);
                 res.status(404).json({ "message": `문제가 발생해 제거할 수 없습니다` });
             }
             

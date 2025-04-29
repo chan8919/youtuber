@@ -3,6 +3,7 @@ const router = express.Router();
 const dbFunc = require('../func/dbfunc');
 const dbdata = require('../data/data');
 const channels = require('../data/channelModel');
+const { findByEmail } = require("../data/memberModel");
 router.use(express.json());
 
 router
@@ -10,9 +11,7 @@ router
     .get(async (req, res) => {
         // 특정 유튜버의 채널 전체 조회
         const channelList = await channels.getAllChannels();
-        
         if (channelList.length > 0) {
-            
             res.status(200).json({ "message": "전체 채널 목록입니다.", "channels": channelList });
         }
         else {
@@ -100,5 +99,25 @@ router
         res.status(200).json({ "message": "채널 삭제에 성공했습니다" })
     })
 
+router
+    .route('/user')
+    .post(async (req, res) => {
+        const { email } = req.body;
+        try {
+            const channelList = await channels.findByUserEmail({ "email": email });
+            if (channelList.length > 0) {
+                res.status(200).json({ "message": `${email} 님의 채널 목록입니다.`, "channels": channelList });
+            }
+            else {
+                res.status(200).json({ "message": `${email} 님의 채널 목록을 찾을 수 없습니다.`, "channels": channelList });
+            }
+        }
+        catch(err) {
+            console.log(err);
+            res.status(404).json({ "message": "채널을 찾는 중 오류가 발생했습니다" });
+        }
 
-    module.exports = router;
+    })
+
+
+module.exports = router;
