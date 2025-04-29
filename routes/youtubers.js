@@ -3,7 +3,6 @@ const router = express.Router();
 const dbFunc = require('../func/dbfunc');
 const dbdata = require('../data/data');
 const users = require('../data/memberModel');
-// const conn = require('./data/mariadb');
 router.use(express.json());
 
 router
@@ -61,7 +60,6 @@ router.post('/login', async (req, res) => {
     let isIdMatched = false;
     let isPwdMatched = false;
     let youtubeUser;
-
     
     const isMatched = await users.checkPwd({"email" : email, "pwd":pwd});
     if(isMatched){

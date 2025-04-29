@@ -37,7 +37,6 @@ function findByEmail({ email }) {
 }
 function getAllUsers() {
     const sql = 'SELECT * FROM members';
-    let values;
     return new Promise((resolve,reject)=>{
         conn.query(sql, function (err, results, fields) {
             if(err){

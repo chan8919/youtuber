@@ -2,20 +2,20 @@ const express = require("express");
 const router = express.Router();
 const dbFunc = require('../func/dbfunc');
 const dbdata = require('../data/data');
+const channels = require('../data/channelModel');
 router.use(express.json());
 
 router
     .route('/')
-    .get((req, res) => {
+    .get(async (req, res) => {
         // 특정 유튜버의 채널 전체 조회
-        //const {youtuberId} = req.body;
-        if (dbdata.channelDB.size !== 0) {
-            let channels = Object.fromEntries(dbdata.channelDB);
-            console.log(typeof (channels));
-            res.status(200).json({ "message": "전체 채널 목록입니다.", "channels": channels });
+        const channelList = await channels.getAllChannels();
+        
+        if (channelList.length > 0) {
+            
+            res.status(200).json({ "message": "전체 채널 목록입니다.", "channels": channelList });
         }
         else {
-            // res.status(404).json({ "message": "채널이 하나도 없어요!" });
             dbFunc.notFoundChennelMsg(res);
         }
     })
