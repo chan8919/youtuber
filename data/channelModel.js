@@ -3,7 +3,6 @@ const users = require('./memberModel');
 
 // 이메일에 해당하는 채널 목록 조회회
 function findByUserEmail({ email }) {
-
     return new Promise((resolve, reject) => {
         const sql = 'SELECT c.*,m.email FROM channels AS c JOIN members AS m ON c.member_id = m.id where m.email = ?';
         conn.query(sql, email, (err, results) => {
@@ -16,6 +15,20 @@ function findByUserEmail({ email }) {
     })
 
 }
+
+function getById({id}){
+    return new Promise((resolve,reject)=>{
+        const sql = 'SELECT * FROM channels WHERE id = ?';
+        conn.query(sql,id,(err,results)=>{
+            if(err){
+                reject(err);
+            }else{
+                resolve(results[0]);
+            }
+        })
+    })
+}
+
 // 모든 채널 조회회
 function getAllChannels() {
 
@@ -91,16 +104,67 @@ function isExistByName({name}){
                     resolve(exists);
                 }
             });
+    })
+}
+function isExistById({id}){
+    const sql = 'SELECT EXISTS (SELECT * FROM channels WHERE id = ?) AS exist';
+    return new Promise((resolve, reject) => {
+        conn.query(sql, id, // 테이블 명은 바인딩으로 사용할 수 없다.
+            function (err, results, fields) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    const exists = results[0].exist;
+                    resolve(exists);
+                }
+            });
+    })
+}
 
+// 채널 정보 업데이트
+function updateChannel({target}){
+    const sql = 'UPDATE channels SET name = ?, description = ? WHERE id = ?';
+    console.log(target);
+    return new Promise((resolve, reject) => {
+        conn.query(sql, [target.name,target.description,target.id], 
+            function (err, results, fields) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(true);
+                }
+            });
     })
 
-
 }
+function delChannelById({id}){
+    const sql = 'DELETE FROM channels WHERE id = ?';
+    return new Promise((resolve,reject)=>{
+        conn.query(sql,id,(err,results)=>{
+            if(err){
+                console.log(err);
+                reject(err);
+            }
+            else{
+                console.log(results);
+                resolve(true);
+            }
+        })
+
+    })
+}
+
 
 module.exports = {
     findByUserEmail,
     getAllChannels,
     isExistByName,
     isOverChannelLimit,
+    getById,
+    updateChannel,
+    delChannelById,
+    isExistById,
     addChannel
 };
