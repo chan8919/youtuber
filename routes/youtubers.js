@@ -4,7 +4,12 @@ const dbFunc = require('../func/dbfunc');
 const dbdata = require('../data/data');
 const { param, body, validationResult } = require('express-validator');
 const users = require('../data/memberModel');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
 router.use(express.json());
+
+
 
 function validate(req, res, next) {
     const validatorErr = validationResult(req);
@@ -78,15 +83,15 @@ router.post('/login',   // 로그인
     ]
     , async (req, res) => {
         const { email, pwd } = req.body;
-        let isIdMatched = false;
-        let isPwdMatched = false;
-        let youtubeUser;
 
         const isMatched = await users.checkPwd({ "email": email, "pwd": pwd });
         if (isMatched) {
-            res.status(200).json({ "message": "로그인 성공" });
+            //token 발급
+            const token = jwt.sign({email:email},process.env.PRIVATE_KEY,{expiresIn:'15m',issuer:"sori"});
+            res.cookie("token",token,{httpOnly:true});
+            res.status(200).json({ "message": "로그인 성공"});
         } else {
-            res.status(404).json({ "message": "아이디 또는 비밀번호가 올바르지 않습니다" });
+            res.status(403).json({ "message": "아이디 또는 비밀번호가 올바르지 않습니다" });
         }
 
     })
