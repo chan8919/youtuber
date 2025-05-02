@@ -7,6 +7,7 @@ function findByUserEmail({ email }) {
         const sql = 'SELECT c.*,m.email FROM channels AS c JOIN members AS m ON c.member_id = m.id where m.email = ?';
         conn.query(sql, email, (err, results) => {
             if (err) {
+                console.log(err);
                 reject(err);
             } else {
                 resolve(results);
@@ -21,6 +22,7 @@ function getById({id}){
         const sql = 'SELECT * FROM channels WHERE id = ?';
         conn.query(sql,id,(err,results)=>{
             if(err){
+                console.log(err);
                 reject(err);
             }else{
                 resolve(results[0]);
@@ -36,6 +38,7 @@ function getAllChannels() {
         const sql = 'SELECT * FROM channels';
         conn.query(sql, function (err, results, fields) {
             if (err) {
+                console.log(err);
                 reject(err);
             }
             else {
@@ -56,6 +59,7 @@ async function addChannel({ name, description, email }) {
             conn.query(sql, [name, user[0].id, description],
                 function (err, results) {
                     if (err) {
+                        console.log(err);
                         reject(err);
                     } else {
                         resolve(true);
@@ -76,6 +80,7 @@ function isOverChannelLimit({email}) {
         const sql = 'SELECT COUNT(*) AS count FROM channels AS c JOIN members AS u ON c.member_id=u.id WHERE u.email = ? ';
         conn.query(sql, email, (err, results) => {
             if (err) {
+                console.log(err);
                 reject(err);
             } else {
                 if(results[0].count>=100){
@@ -97,6 +102,7 @@ function isExistByName({name}){
         conn.query(sql, name, // 테이블 명은 바인딩으로 사용할 수 없다.
             function (err, results, fields) {
                 if (err) {
+                    console.log(err);
                     reject(err);
                 }
                 else {
@@ -112,6 +118,7 @@ function isExistById({id}){
         conn.query(sql, id, // 테이블 명은 바인딩으로 사용할 수 없다.
             function (err, results, fields) {
                 if (err) {
+                    console.log(err);
                     reject(err);
                 }
                 else {
@@ -130,6 +137,7 @@ function updateChannel({target}){
         conn.query(sql, [target.name,target.description,target.id], 
             function (err, results, fields) {
                 if (err) {
+                    console.log(err);
                     reject(err);
                 }
                 else {

@@ -8,6 +8,7 @@ function isExistByEmail({ email }) {
         conn.query(sql, [email], // 테이블 명은 바인딩으로 사용할 수 없다.
             function (err, results, fields) {
                 if (err) {
+                    console.log(err);
                     reject(err);
                 }
                 else {
@@ -27,6 +28,7 @@ function findByEmail({ email }) {
         conn.query(sql, email,
             function (err, results, fields) {
                 if(err){
+                    console.log(err);
                     reject(err)
                 }else{
                     resolve(results);
@@ -40,6 +42,7 @@ function getAllUsers() {
     return new Promise((resolve,reject)=>{
         conn.query(sql, function (err, results, fields) {
             if(err){
+                console.log(err);
                 reject(err);
             }
             else{
@@ -57,6 +60,7 @@ function addUser({ email, pwd, name }) {
         conn.query(sql, [email, pwd, name],
             function (err, results) {
                 if (err) {
+                    console.log(err);
                     reject(err);
                 } else {
                     resolve(true);
@@ -89,6 +93,7 @@ function checkPwd({email,pwd}){ // 이메일과 PWD가 일치하는 값이 있�
     return new Promise((resolve,reject)=>{
         conn.query(sql,[email,pwd],(err,results)=>{
             if(err){
+                console.log(err);
                 reject(err);
             }else{
                 resolve(results[0].exist);
