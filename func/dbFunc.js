@@ -1,9 +1,11 @@
+const dbdata = require('../data/data');
+
 // 사용자 가져오기기
 function findYoutuberByUserId(userId) {
     let searchData = null;
     if (typeof (userId) === "string") {
         // db에서 userId가 일치하는 유튜버 탐색 -> 성공시 searchData에 저장장
-        for (let youtuber of db) {
+        for (let youtuber of dbdata.db.values()) {
             if (youtuber.userId === userId) {
                 searchData = youtuber;
                 break;
@@ -12,12 +14,13 @@ function findYoutuberByUserId(userId) {
     }
     return searchData;  // searchData가 있으면 데이터를 넘기고 , 없으면 null값 반환
 }
+
 // 사용자가 있는지 확인인
 function existYoutuberByUserId(userId) {
     let isExist = false;
     if (typeof (userId) === "string") {
         // db에서 userId가 일치하는 유튜버 탐색 -> 성공시 searchData에 저장장
-        for (let youtuber of db.values()) {
+        for (let youtuber of dbdata.db.values()) {
             if (youtuber.userId === userId) {
                 isExist = true;
                 break;
@@ -30,7 +33,7 @@ function existYoutuberByUserId(userId) {
 function existChannelByChannelTitle(channelTitle) {
     let isExist = false;
     if (typeof (channelTitle) === "string") {
-        for (let channel of channelDB.values()) {
+        for (let channel of dbdata.channelDB.values()) {
             if (channel.channelTitle === channelTitle) {
                 isExist = true;
                 break;
@@ -43,7 +46,7 @@ function existChannelById(channelId) {
     let isExist = false;
     
     if (typeof (channelId) === "number") {
-        for (let channel of channelDB.values()) {
+        for (let channel of dbdata.channelDB.values()) {
             if (channel.id == channelId) {
                 isExist = true;
                 break;
@@ -55,7 +58,7 @@ function existChannelById(channelId) {
 function isOverChannelLimmitByUserId(userId) {
     let counter = 0;
     if (typeof (userId) === "string") {
-        channelDB.forEach(channel => {
+        dbdata.channelDB.forEach(channel => {
             if (channel.userId === userId) {
                 counter++;
             }
@@ -92,6 +95,12 @@ function getVideostoNickname(youtuberNickname) {
 
     return videos;
 }
+//경고 목록
+function notFoundChennelMsg(res){
+    res.status(404).json({"message":"채널을 찾을수 없어요"})
+}
+
+
 
 module.exports = {
     findYoutuberByUserId,
@@ -100,5 +109,6 @@ module.exports = {
     existChannelById,
     isOverChannelLimmitByUserId,
     getNewIdbyDB,
-    getVideostoNickname
+    getVideostoNickname,
+    notFoundChennelMsg
 }
